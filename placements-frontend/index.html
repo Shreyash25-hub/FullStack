@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PlacementOS — Full Placement Prep Tracker</title>
+    <!-- Google Typography loaded natively -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+    <!-- 1. AUTHENTICATION SCREEN -->
+    <section id="authScreen" class="screen">
+        <div class="auth-card">
+            <h1 id="authTitle">PlacementOS</h1>
+            <p id="authSubtitle">Self-hosted Placement Prep Roadmap Tracker</p>
+
+            <div id="authError" class="error-banner"></div>
+
+            <form id="authForm" class="auth-form" novalidate>
+                <div>
+                    <label for="authEmail">Email Address</label>
+                    <input type="email" id="authEmail" required placeholder="you@example.com">
+                </div>
+                <div>
+                    <label for="authPassword">Password</label>
+                    <input type="password" id="authPassword" required minlength="8" placeholder="At least 8 characters">
+                </div>
+                <button type="submit" class="btn-primary" id="authSubmitBtn" style="width: 100%; margin-top: 10px;">
+                    Login
+                </button>
+            </form>
+
+            <div class="auth-toggle">
+                <span id="authToggleText">Don't have an account?</span>
+                <a href="#" id="authToggleLink">Register</a>
+            </div>
+        </div>
+        <footer class="auth-footer">
+            API_BASE_URL: <span id="authApiUrl"></span>
+        </footer>
+    </section>
+
+    <!-- 2. SETUP WIZARD SCREEN -->
+    <section id="wizardScreen" class="screen">
+        <div class="wizard-card">
+            <h1>Create Study Schedule</h1>
+            <p class="subtitle">Enter your preparation dates and choose subjects to construct your roadmap</p>
+
+            <div id="wizardError" class="error-banner"></div>
+
+            <div class="wizard-section">
+                <h3>1. Select Date Range</h3>
+                <div class="date-grid">
+                    <div>
+                        <label for="wizardStartDate" style="font-size: 13px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:6px;">Start Date</label>
+                        <input type="date" id="wizardStartDate" required>
+                    </div>
+                    <div>
+                        <label for="wizardEndDate" style="font-size: 13px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:6px;">End Date</label>
+                        <input type="date" id="wizardEndDate" required>
+                    </div>
+                </div>
+
+                <div class="duration-chips">
+                    <button class="chip" data-days="30">30 Days</button>
+                    <button class="chip" data-days="60">60 Days</button>
+                    <button class="chip" data-days="90">90 Days</button>
+                    <button class="chip" data-days="180">180 Days</button>
+                </div>
+
+                <!-- Runway Visual Box -->
+                <div id="runwayBox">
+                    <span class="runway-days" id="runwayCount">0</span>
+                    <div class="runway-label">Total Days of Runway</div>
+                    <div class="runway-track">
+                        <div class="runway-dot start"></div>
+                        <div class="runway-dot end"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-section">
+                <h3>2. Topics & Concepts</h3>
+                <div class="topics-container">
+                    <!-- DSA Patterns -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span class="topic-group-label">DSA Patterns (Striver A2Z Sheet matching)</span>
+                            <button type="button" class="select-all-btn" id="selectAllDsa">Select All</button>
+                        </div>
+                        <div class="topic-chips" id="dsaTopicChips">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Subjects -->
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span class="topic-group-label">Core CS Subjects & Deliverables</span>
+                            <button type="button" class="select-all-btn" id="selectAllSubjects">Select All</button>
+                        </div>
+                        <div class="topic-chips" id="subjectTopicChips">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="wizard-actions">
+                <button type="button" class="btn-primary" id="wizardSubmitBtn">
+                    Generate Roadmap
+                </button>
+                <div class="wizard-loading" id="wizardLoading">
+                    <div class="pulsing-dot"></div>
+                    <span style="font-weight: 600; color: var(--ink-soft);">Structuring your daily tasks...</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. ROADMAP TRACKER SCREEN -->
+    <section id="trackerScreen" class="screen">
+        <!-- Sidebar Navigation -->
+        <aside id="sidebar">
+            <div class="sidebar-header">
+                <h2><span style="font-style: italic;">Placement</span>OS</h2>
+                <div class="user-email" id="sidebarUserEmail">user@example.com</div>
+            </div>
+
+            <div class="progress-summary">
+                <div class="progress-ring-container">
+                    <svg class="progress-ring" width="80" height="80">
+                        <circle class="progress-ring-circle-bg" cx="40" cy="40" r="34"></circle>
+                        <circle class="progress-ring-circle" id="ringFill" cx="40" cy="40" r="34"></circle>
+                    </svg>
+                    <div class="progress-text" id="progressPercent">0%</div>
+                </div>
+                <div>
+                    <div class="streak-chip">
+                        <span>🔥</span>
+                        <span id="streakDays">0</span> Day Streak
+                    </div>
+                    <div style="font-size: 12px; color: var(--ink-faint); margin-top: 6px;" id="sidebarProgressCount">
+                        0/0 Days Complete
+                    </div>
+                </div>
+            </div>
+
+            <!-- Grouped Days Menu -->
+            <nav id="dayNav">
+                <!-- Populated dynamically via JS -->
+            </nav>
+
+            <div class="sidebar-footer">
+                <button class="sidebar-footer-btn" id="btnToggleNotifications" title="Enable Notifications">🔔</button>
+                <button class="sidebar-footer-btn" id="btnSyncLeetcode" title="Sync LeetCode Progress">🔄</button>
+                <button class="sidebar-footer-btn" id="btnOpenSettings" title="Profile Settings">⚙️</button>
+                <button class="sidebar-footer-btn" id="btnNewSchedule" title="New Schedule">➕</button>
+                <button class="sidebar-footer-btn" id="btnLogOut" title="Log Out">🔌</button>
+            </div>
+        </aside>
+
+        <!-- Scrim for mobile sidebar drawer overlay -->
+        <div id="scrim"></div>
+
+        <!-- Main Pane Content Area -->
+        <main id="mainContent">
+            <!-- Top Header Bar -->
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <button class="menu-toggle" id="menuToggleBtn">☰</button>
+                    <div class="topbar-title-section">
+                        <span class="eyebrow" id="eyebrowDayNum">Day N of Total</span>
+                        <h2 class="topbar-title" id="dayTitleHeader">Day N</h2>
+                    </div>
+                </div>
+
+                <!-- Day/Night sliding theme switch -->
+                <button id="dayNightSwitch">
+                    <span id="themeToggleIcon">☀️</span>
+                    <span id="themeToggleText">Light Mode</span>
+                </button>
+            </header>
+
+            <!-- Day Details scrolling panel -->
+            <div class="day-details-container">
+                <div class="day-details-inner" id="dayDetailsPanel">
+                    
+                    <!-- Countdown Mount -->
+                    <div id="countdownMount">
+                        <span class="countdown-label">Roadmap Target Deadline</span>
+                        <span class="countdown-digits" id="countdownTimer">00d : 00h : 00m : 00s</span>
+                    </div>
+
+                    <!-- Mission Card -->
+                    <div class="mission-card" id="missionCard">
+                        <h4>Today's Topics</h4>
+                        <p id="missionTopicsText">Arrays • SQL</p>
+                    </div>
+
+                    <!-- Item Rows List -->
+                    <div class="items-list-section">
+                        <h3>Scheduled Tasks</h3>
+                        <div id="tasksListContainer">
+                            <!-- Populated dynamically via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Notes pad -->
+                    <div class="notes-section">
+                        <h3>Day Notes</h3>
+                        <textarea class="notes-textarea" id="notesTextarea" placeholder="Write down study reminders, code notes, or questions here. Saved automatically..."></textarea>
+                    </div>
+
+                    <!-- Footer Prev/Next buttons -->
+                    <footer class="day-footer-nav">
+                        <button class="footer-nav-btn" id="btnPrevDay">Previous Day</button>
+                        <button class="footer-nav-btn" id="btnNextDay">Next Day</button>
+                    </footer>
+
+                </div>
+            </div>
+        </main>
+    </section>
+
+    <!-- 4. PROFILE / SETTINGS MODAL -->
+    <div class="modal-overlay" id="settingsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>Profile Settings</h2>
+                <button class="modal-close" id="settingsModalCloseBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div id="settingsError" class="error-banner"></div>
+                <div>
+                    <label for="settingsLeetcodeUsername" style="font-size: 13px; font-weight:600; color:var(--ink-soft); display:block; margin-bottom:6px;">LeetCode Username</label>
+                    <input type="text" id="settingsLeetcodeUsername" placeholder="e.g. LeetShreyash">
+                    <span style="font-size:12px; color:var(--ink-faint); margin-top:4px; display:block;">Enter your username to auto-sync your completed problems.</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                    <span style="font-size:12px; color:var(--ink-faint);" id="settingsLastSyncText">Never synced.</span>
+                    <button class="btn-primary" id="settingsSaveBtn">Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Configuration parameters and core script files loaded in order -->
+    <script src="config.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
